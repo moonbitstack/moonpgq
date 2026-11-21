@@ -1,0 +1,126 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonpgq/cypher"
+
+import {
+  "moonbitstack/moonpgq",
+}
+
+// Values
+pub fn execute(&@moonpgq.Graph, Query, parameters? : Array[(String, @moonpgq.Value)]) -> Table
+
+pub fn matches_pattern(&@moonpgq.Graph, StringView, @moonpgq.Value) -> Bool
+
+pub fn parse(StringView) -> Query raise @moonpgq.Refused
+
+pub fn parse_value(StringView) -> @moonpgq.Value raise @moonpgq.Refused
+
+pub fn resolve_pattern(&@moonpgq.Graph, StringView) -> @moonpgq.Value? raise @moonpgq.Refused
+
+pub fn run(&@moonpgq.Graph, StringView, parameters? : Array[(String, @moonpgq.Value)]) -> Table raise @moonpgq.Refused
+
+// Errors
+
+// Types and methods
+pub(all) enum Clause {
+  Match(Array[PatternPart], Bool, Expr?)
+  Where(Expr)
+  With(Array[Item], Bool, Array[SortItem], Expr?, Expr?, Expr?)
+  Unwind(Expr, String)
+  Return(Array[Item], Bool, Array[SortItem], Expr?, Expr?)
+  Create(Array[PatternPart])
+}
+
+#derive(Eq)
+pub(all) enum Direction {
+  Out
+  In
+  Both
+}
+
+pub(all) enum Expr {
+  Literal(@moonpgq.Value)
+  Variable(String)
+  Parameter(String)
+  Property(Expr, String)
+  Index(Expr, Expr)
+  ListLiteral(Array[Expr])
+  MapLiteral(Array[(String, Expr)])
+  Unary(String, Expr)
+  Binary(String, Expr, Expr)
+  IsNull(Expr, Bool)
+  Call(String, Array[Expr], Bool)
+  Case(Array[(Expr, Expr)], Expr?)
+  Star
+}
+pub fn Expr::to_text(Self) -> String
+
+pub(all) struct Item {
+  expr : Expr
+  name : String
+}
+
+pub struct Lexer {
+  tokens : Array[Token]
+  positions : Array[Int32]
+  mut at : Int32
+}
+
+pub(all) struct NodePattern {
+  variable : String?
+  labels : Array[String]
+  properties : Array[(String, Expr)]
+}
+
+pub(all) struct PatternPart {
+  path_variable : String?
+  nodes : Array[NodePattern]
+  rels : Array[RelPattern]
+}
+
+pub(all) struct Query {
+  clauses : Array[Clause]
+}
+
+pub(all) struct RelPattern {
+  variable : String?
+  types : Array[String]
+  direction : Direction
+  min_hops : Int32
+  max_hops : Int32
+  properties : Array[(String, Expr)]
+}
+
+pub(all) struct Row {
+  bindings : Array[(String, @moonpgq.Value)]
+}
+pub fn Row::bindings(Self) -> Array[(String, @moonpgq.Value)]
+pub fn Row::new() -> Self
+
+pub struct Session {
+  graph : &@moonpgq.Graph
+  parameters : Array[(String, @moonpgq.Value)]
+}
+
+pub(all) struct SortItem {
+  expr : Expr
+  descending : Bool
+}
+
+pub(all) struct Table {
+  columns : Array[String]
+  rows : Array[Array[@moonpgq.Value]]
+}
+pub fn Table::to_text(Self) -> String
+
+pub(all) enum Token {
+  Word(String)
+  Number(Double, String)
+  Text(String)
+  Symbol(String)
+  Parameter(String)
+  End
+}
+
+// Type aliases
+
+// Traits

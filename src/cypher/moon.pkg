@@ -1,0 +1,10 @@
+// Reads openCypher queries: `MATCH`, `OPTIONAL MATCH`, `WHERE`, `WITH`,
+// `UNWIND`, `RETURN`, `ORDER BY`, `SKIP`, `LIMIT`, expressions and
+// aggregation, plus `CREATE` so a fixture can be loaded.
+//
+// The language is openCypher's read subset, read against the grammar published
+// with the specification: https://opencypher.org/resources/
+
+import {
+  "moonbitstack/moonpgq" @pgq,
+}

@@ -5,6 +5,7 @@ import {
   "moonbitstack/moonpgq" @pgq,
   "moonbitstack/moonpgq/gremlin",
   "moonbitstack/moonpgq/memory",
+  "moonbitstack/moonpgq/cypher",
   "moonbitlang/core/json",
   "moonbitlang/core/double",
 } for "test"

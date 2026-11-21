@@ -1,0 +1,7 @@
+import {
+  "moonbitstack/moonpgq" @pgq,
+  "moonbitstack/moonpgq/cypher",
+  "moonbitstack/moonpgq/memory",
+}
+
+pkgtype(kind: "executable")
