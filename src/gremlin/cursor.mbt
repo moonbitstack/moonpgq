@@ -16,6 +16,8 @@ pub(all) enum Arg {
   Value(@pgq.Value)
   Trav(@pgq.Traversal)
   Pred(@pgq.Predicate)
+  /// A `Pick` constant: `none` names the default branch of `option()`.
+  Pick(String)
   Order(@pgq.Order)
   Scope(@pgq.Scope)
   Column(@pgq.Column)
@@ -83,6 +85,33 @@ fn Parser::expect(
 fn Parser::at_end(self : Parser) -> Bool {
   self.skip_space()
   self.at >= self.text.length()
+}
+
+///|
+/// Consumes a balanced argument list, quotes included. A source modifier such as
+/// `withStrategies(ProductiveByStrategy)` names classes this engine has no use
+/// for, and reading them as arguments would fail on the class names.
+fn Parser::skip_parens(self : Parser) -> Unit {
+  let mut depth = 1
+  while self.at < self.text.length() && depth > 0 {
+    let ch = char_at(self.text, self.at)
+    self.at = self.at + 1
+    if ch == '"' || ch == '\'' {
+      while self.at < self.text.length() {
+        let inner = char_at(self.text, self.at)
+        self.at = self.at + 1
+        if inner == '\\' {
+          self.at = self.at + 1
+        } else if inner == ch {
+          break
+        }
+      }
+    } else if ch == '(' {
+      depth = depth + 1
+    } else if ch == ')' {
+      depth = depth - 1
+    }
+  }
 }
 
 ///|
@@ -184,7 +213,9 @@ fn Parser::number(self : Parser) -> @pgq.Value? {
       suffix == 'i' ||
       suffix == 'I' ||
       suffix == 'b' ||
-      suffix == 'B'
+      suffix == 'B' ||
+      suffix == 's' ||
+      suffix == 'S'
     if is_suffix {
       if suffix == 'd' || suffix == 'D' || suffix == 'f' || suffix == 'F' {
         is_double = true

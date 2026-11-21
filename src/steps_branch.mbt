@@ -8,6 +8,12 @@
 const MAX_ROUNDS : Int32 = 64
 
 ///|
+/// How many traversers one round of `repeat()` may carry. A body that both
+/// walks out and walks in grows exponentially, and no store survives forty
+/// rounds of it; the limit turns that into a refusal instead of a dead process.
+const MAX_FRONTIER : Int32 = 20000
+
+///|
 /// `repeat()` with `until()`, `emit()` and `times()`. The body runs on the
 /// frontier of the previous round, so a round is one breadth-first step of the
 /// walk rather than a recursion per traverser.
@@ -84,6 +90,11 @@ fn step_repeat(
             next.push(stepped)
           }
         }
+      }
+      if next.length() > MAX_FRONTIER {
+        raise Refused::Unsupported(
+          "repeat()", "the frontier grew past the limit",
+        )
       }
       frontier = next
     }
@@ -163,6 +174,30 @@ fn step_union(
 /// `choose()`: a trailer that picks a branch per traverser, by a predicate, by
 /// whether a child traversal produces anything, or by a value looked up in the
 /// options.
+
+///|
+/// The branch an `option()` list picks for a value: an exact match, else the
+/// first predicate the value satisfies, else the default branch.
+fn option_branch(choose : Choose, key : Value) -> Traversal? {
+  for option in choose.options {
+    match option.0 {
+      Value(want) => if want.equals(key) { return Some(option.1) }
+      Predicate(predicate) =>
+        if predicate.accepts(key) {
+          return Some(option.1)
+        }
+      Default => ()
+    }
+  }
+  for option in choose.options {
+    if option.0 is Default {
+      return Some(option.1)
+    }
+  }
+  choose.otherwise
+}
+
+///|
 fn step_choose(
   ctx : Ctx,
   input : Array[Traverser],
@@ -189,15 +224,14 @@ fn step_choose(
           }
           None =>
             match choose.on {
-              Some(by) => {
-                let key = read_by(ctx, by, traverser.value)
-                match
-                  array_find(choose.options, fn(option) { option.0.equals(key) }) {
-                  Some(option) => Some(option.1)
-                  None => choose.otherwise
+              Some(by) =>
+                option_branch(choose, read_by(ctx, by, traverser.value))
+              None =>
+                if choose.options.is_empty() {
+                  choose.then
+                } else {
+                  option_branch(choose, traverser.value)
                 }
-              }
-              None => choose.then
             }
         }
     }

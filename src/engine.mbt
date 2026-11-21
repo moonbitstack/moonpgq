@@ -560,7 +560,22 @@ fn step_side_effect(
 ///|
 fn step_cap(ctx : Ctx, keys : Array[String]) -> Array[Traverser] {
   if keys.length() == 1 {
-    return ctx.effect(keys[0]).map(start_traverser)
+    let collected = ctx.effect(keys[0])
+    // A step that grouped into a name kept a map; everything else kept the
+    // values themselves, which cap hands on as one list.
+    let single = match collected {
+      [only] =>
+        match only {
+          Dict(_) => Some(only)
+          _ => None
+        }
+      _ => None
+    }
+    let value = match single {
+      Some(value) => value
+      None => Value::List(collected)
+    }
+    return [start_traverser(value)]
   }
   let entries : Array[(Value, Value)] = keys.map(fn(key) {
     (Value::Text(key), Value::List(ctx.effect(key)))

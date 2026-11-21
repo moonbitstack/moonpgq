@@ -212,7 +212,25 @@ pub(all) struct Choose {
   on : By?
   then : Traversal?
   otherwise : Traversal?
-  options : Array[(Value, Traversal)]
+  options : Array[(OptionKey, Traversal)]
+}
+
+///|
+/// What an `option()` of `choose()` matches: one value, one predicate, or the
+/// branch taken when nothing else matched.
+pub(all) enum OptionKey {
+  Value(Value)
+  Predicate(Predicate)
+  Default
+}
+
+///|
+pub fn OptionKey::to_text(self : OptionKey) -> String {
+  match self {
+    Value(value) => value.to_text()
+    Predicate(_) => "predicate"
+    Default => "none"
+  }
 }
 
 ///|
@@ -223,7 +241,7 @@ pub fn Choose::of_predicate(predicate : Predicate) -> Choose {
     on: None,
     then: None,
     otherwise: None,
-    options: [],
+    options: ([] : Array[(OptionKey, Traversal)]),
   }
 }
 
@@ -235,7 +253,7 @@ pub fn Choose::of_traversal(choice : Traversal) -> Choose {
     on: None,
     then: None,
     otherwise: None,
-    options: [],
+    options: ([] : Array[(OptionKey, Traversal)]),
   }
 }
 
@@ -247,7 +265,7 @@ pub fn Choose::of_value(on : By) -> Choose {
     on: Some(on),
     then: None,
     otherwise: None,
-    options: [],
+    options: ([] : Array[(OptionKey, Traversal)]),
   }
 }
 

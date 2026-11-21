@@ -46,6 +46,25 @@ fn numbers_of(
 }
 
 ///|
+fn mapped_values(
+  ctx : Ctx,
+  input : Array[Traverser],
+  bys : Array[By],
+) -> Array[Value] raise Refused {
+  let out : Array[Value] = []
+  for traverser in input {
+    out.push(
+      if bys.is_empty() {
+        traverser.value
+      } else {
+        read_by_at(ctx, bys, 0, traverser.value)
+      },
+    )
+  }
+  out
+}
+
+///|
 fn step_sum(
   ctx : Ctx,
   input : Array[Traverser],
@@ -53,12 +72,37 @@ fn step_sum(
   bys : Array[By],
 ) -> Array[Traverser] raise Refused {
   if scope == Scope::Global {
-    let numbers = numbers_of(ctx, input, bys)
-    if numbers.is_empty() {
+    let values = mapped_values(ctx, input, bys)
+    let mut int_total = 0L
+    let mut double_total = 0.0
+    let mut any_double = false
+    let mut counted = 0
+    for value in values {
+      match value {
+        Int(number) => {
+          int_total = int_total + number
+          double_total = double_total + number.to_double()
+          counted = counted + 1
+        }
+        Double(number) => {
+          any_double = true
+          double_total = double_total + number
+          counted = counted + 1
+        }
+        _ => ()
+      }
+    }
+    if counted == 0 {
       return []
     }
     return [
-      start_traverser(Value::Double(numbers.fold(init=0.0, fn(a, b) { a + b }))),
+      start_traverser(
+        if any_double {
+          Value::Double(double_total)
+        } else {
+          Value::Int(int_total)
+        },
+      ),
     ]
   }
   let out : Array[Traverser] = []

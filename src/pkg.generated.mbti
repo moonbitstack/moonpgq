@@ -54,7 +54,7 @@ pub(all) struct Choose {
   on : By?
   then : Traversal?
   otherwise : Traversal?
-  options : Array[(Value, Traversal)]
+  options : Array[(OptionKey, Traversal)]
 }
 pub fn Choose::of_predicate(Predicate) -> Self
 pub fn Choose::of_traversal(Traversal) -> Self
@@ -123,6 +123,13 @@ pub(all) struct Has {
   key : String
   predicate : Predicate
 }
+
+pub(all) enum OptionKey {
+  Value(Value)
+  Predicate(Predicate)
+  Default
+}
+pub fn OptionKey::to_text(Self) -> String
 
 #derive(Eq)
 pub(all) enum Order {

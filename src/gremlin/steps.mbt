@@ -20,6 +20,25 @@ fn apply_step(
     "emit" => record_emit(build, args)
     "times" => record_times(build, args)
     "repeat" => record_repeat(parser, build, args)
+    "has" =>
+      if args.length() == 3 {
+        // has(label, key, value) restricts both the label and one property.
+        let label = text_at(args, 0).unwrap_or("")
+        let rest : Array[Arg] = [args[1], args[2]]
+        build.steps.push(@pgq.Step::HasLabel([label]))
+        build.steps.push(@pgq.Step::Has(parse_has(rest)))
+      } else {
+        build.steps.push(@pgq.Step::Has(parse_has(args)))
+      }
+    "withStrategies"
+    | "withoutStrategies"
+    | "with"
+    | "withSack"
+    | "withBulk"
+    | "withPath"
+    | "withSideEffect"
+    | "without" => ()
+    "barrier" => build.steps.push(@pgq.Step::Identity)
     _ => build.steps.push(build_step(parser, name, args, at))
   }
 }
@@ -322,7 +341,7 @@ fn parse_choose(args : Array[Arg]) -> @pgq.Choose raise @pgq.Refused {
         on: choose.on,
         then: traversal_at(args, 1),
         otherwise: traversal_at(args, 2),
-        options: ([] : Array[(@pgq.Value, @pgq.Traversal)]),
+        options: ([] : Array[(@pgq.OptionKey, @pgq.Traversal)]),
       }
     }
     Some(Trav(traversal)) => {
@@ -333,7 +352,7 @@ fn parse_choose(args : Array[Arg]) -> @pgq.Choose raise @pgq.Refused {
         on: choose.on,
         then: traversal_at(args, 1),
         otherwise: traversal_at(args, 2),
-        options: ([] : Array[(@pgq.Value, @pgq.Traversal)]),
+        options: ([] : Array[(@pgq.OptionKey, @pgq.Traversal)]),
       }
     }
     Some(Column(column)) => @pgq.Choose::of_value(@pgq.By::of_column(column))
@@ -470,8 +489,15 @@ fn attach_option(
   build : Build,
   args : Array[Arg],
 ) -> Unit raise @pgq.Refused {
-  let value = match args.get(0) {
-    Some(Value(value)) => value
+  let key = match args.get(0) {
+    Some(Value(value)) => @pgq.OptionKey::Value(value)
+    Some(Pred(predicate)) => @pgq.OptionKey::Predicate(predicate)
+    Some(Pick(name)) =>
+      if name == "none" {
+        @pgq.OptionKey::Default
+      } else {
+        raise @pgq.Refused::Unsupported("option", "Pick." + name)
+      }
     _ => raise @pgq.Refused::Unsupported("option", "a value")
   }
   let branch = match args.get(1) {
@@ -490,7 +516,7 @@ fn attach_option(
         on: choose.on,
         then: choose.then,
         otherwise: choose.otherwise,
-        options: choose.options + [(value, branch)],
+        options: choose.options + [(key, branch)],
       })
     _ => raise @pgq.Refused::Unsupported("option", last.to_text())
   }

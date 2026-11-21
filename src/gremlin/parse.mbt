@@ -62,9 +62,31 @@ fn parse_chain(parser : Parser, build : Build) -> Unit raise @pgq.Refused {
       None => raise parser.fail("a step name")
     }
     parser.expect('(', "an argument list")
+    if is_source_modifier(name) {
+      parser.skip_parens()
+      continue
+    }
     let args = parse_args(parser)
     parser.expect(')', "a closing parenthesis")
     apply_step(parser, build, name, args, start)
+  }
+}
+
+///|
+/// Steps that tune a traversal source rather than change which results come
+/// out. Their arguments are read past, since they name options and classes this
+/// engine does not model.
+fn is_source_modifier(name : String) -> Bool {
+  match name {
+    "withStrategies"
+    | "withoutStrategies"
+    | "with"
+    | "without"
+    | "withSack"
+    | "withBulk"
+    | "withPath"
+    | "withSideEffect" => true
+    _ => false
   }
 }
 
@@ -129,6 +151,9 @@ fn parse_arg(parser : Parser) -> Arg raise @pgq.Refused {
                   "asc" => Arg::Order(@pgq.Order::Asc)
                   "desc" => Arg::Order(@pgq.Order::Desc)
                   "shuffle" => Arg::Order(@pgq.Order::Shuffle)
+                  "set" => Arg::Cardinality(@pgq.Cardinality::Set)
+                  "single" => Arg::Cardinality(@pgq.Cardinality::Single)
+                  "list" => Arg::Cardinality(@pgq.Cardinality::List)
                   "local" => Arg::Scope(@pgq.Scope::Local)
                   "global" => Arg::Scope(@pgq.Scope::Global)
                   "keys" => Arg::Column(@pgq.Column::Keys)
@@ -260,58 +285,50 @@ fn parse_qualified(
     )
   }
   match owner {
-    "@pgq.Order" =>
+    "Order" =>
       match const_name {
         "asc" => Arg::Order(@pgq.Order::Asc)
         "desc" => Arg::Order(@pgq.Order::Desc)
         "shuffle" => Arg::Order(@pgq.Order::Shuffle)
-        _ =>
-          raise @pgq.Refused::Unsupported(
-            "@pgq.Order." + const_name,
-            "an order",
-          )
+        _ => raise @pgq.Refused::Unsupported("Order." + const_name, "an order")
       }
-    "@pgq.Scope" =>
+    "Scope" =>
       match const_name {
         "local" => Arg::Scope(@pgq.Scope::Local)
         "global" => Arg::Scope(@pgq.Scope::Global)
-        _ =>
-          raise @pgq.Refused::Unsupported("@pgq.Scope." + const_name, "a scope")
+        _ => raise @pgq.Refused::Unsupported("Scope." + const_name, "a scope")
       }
-    "@pgq.Column" =>
+    "Column" =>
       match const_name {
         "keys" => Arg::Column(@pgq.Column::Keys)
         "values" => Arg::Column(@pgq.Column::Values)
-        _ =>
-          raise @pgq.Refused::Unsupported(
-            "@pgq.Column." + const_name,
-            "a column",
-          )
+        _ => raise @pgq.Refused::Unsupported("Column." + const_name, "a column")
       }
     "T" =>
       match const_name {
         "id" => Arg::Token(@pgq.Token::Id)
         "label" => Arg::Token(@pgq.Token::Label)
         "key" => Arg::Token(@pgq.Token::Key)
-        "value" => Arg::Token(@pgq.Token::@pgq.Value)
+        "value" => Arg::Token(@pgq.Token::Value)
         _ => raise @pgq.Refused::Unsupported("T." + const_name, "a token")
       }
-    "@pgq.Pop" =>
+    "Pick" => Arg::Pick(const_name)
+    "Pop" =>
       match const_name {
         "first" => Arg::Pop(@pgq.Pop::First)
         "last" => Arg::Pop(@pgq.Pop::Last)
         "all" => Arg::Pop(@pgq.Pop::All)
         "mixed" => Arg::Pop(@pgq.Pop::Mixed)
-        _ => raise @pgq.Refused::Unsupported("@pgq.Pop." + const_name, "a pop")
+        _ => raise @pgq.Refused::Unsupported("Pop." + const_name, "a pop")
       }
-    "@pgq.Cardinality" =>
+    "Cardinality" =>
       match const_name {
         "single" => Arg::Cardinality(@pgq.Cardinality::Single)
         "list" => Arg::Cardinality(@pgq.Cardinality::List)
         "set" => Arg::Cardinality(@pgq.Cardinality::Set)
         _ =>
           raise @pgq.Refused::Unsupported(
-            "@pgq.Cardinality." + const_name,
+            "Cardinality." + const_name,
             "a cardinality",
           )
       }

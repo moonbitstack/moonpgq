@@ -19,6 +19,7 @@ pub(all) enum Arg {
   Value(@moonpgq.Value)
   Trav(@moonpgq.Traversal)
   Pred(@moonpgq.Predicate)
+  Pick(String)
   Order(@moonpgq.Order)
   Scope(@moonpgq.Scope)
   Column(@moonpgq.Column)

@@ -98,8 +98,8 @@ test "grouping and side effects" {
   let graph = modern()
   let grouped = q(graph, "g.V().groupCount().by(label())")[0]
   assert_eq(grouped, "{person=4, software=2}")
-  assert_eq(q(graph, "g.V().aggregate('x').cap('x').count()"), ["6"])
-  assert_eq(q(graph, "g.V().values('age').sum()"), ["123.0"])
+  assert_eq(q(graph, "g.V().aggregate('x').cap('x').unfold().count()"), ["6"])
+  assert_eq(q(graph, "g.V().values('age').sum()"), ["123"])
   assert_eq(q(graph, "g.V().values('age').mean()"), ["30.75"])
   assert_eq(q(graph, "g.V().values('age').max()"), ["35"])
   assert_eq(q(graph, "g.V().values('age').fold().count(local)"), ["4"])
