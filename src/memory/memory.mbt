@@ -223,40 +223,28 @@ pub impl @pgq.Graph for Store with fn edge(self, id) {
 
 ///|
 pub impl @pgq.Graph for Store with fn vertices(self) {
-  let store = self
-  let cursor = Ref(0)
-  // The bound is taken now: a traversal may add a vertex while this iterator
-  // runs, and a moving bound would never end.
-  let bound = store.vertices.length()
-  Iter::new(fn() {
-    while cursor.val < bound {
-      let slot = cursor.val
-      cursor.val = slot + 1
-      match store.vertices[slot] {
-        Some(record) => return Some(store.element_of_vertex(record))
-        None => continue
-      }
+  // The snapshot is taken now: a traversal may add a vertex while this
+  // iterator runs, and a moving bound would never end.
+  let out : Array[@pgq.Vertex] = []
+  for record in self.vertices {
+    match record {
+      Some(record) => out.push(self.element_of_vertex(record))
+      None => ()
     }
-    None
-  })
+  }
+  out.iter()
 }
 
 ///|
 pub impl @pgq.Graph for Store with fn edges(self) {
-  let store = self
-  let cursor = Ref(0)
-  let bound = store.edges.length()
-  Iter::new(fn() {
-    while cursor.val < bound {
-      let slot = cursor.val
-      cursor.val = slot + 1
-      match store.edges[slot] {
-        Some(record) => return Some(store.element_of_edge(record))
-        None => continue
-      }
+  let out : Array[@pgq.Edge] = []
+  for record in self.edges {
+    match record {
+      Some(record) => out.push(self.element_of_edge(record))
+      None => ()
     }
-    None
-  })
+  }
+  out.iter()
 }
 
 ///|
