@@ -1,0 +1,70 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonpgq/memory"
+
+import {
+  "moonbitstack/moongraph",
+  "moonbitstack/moonpgq",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct EdgeRecord {
+  id : @moonpgq.Value
+  label : String
+  out_v : @moonpgq.Value
+  in_v : @moonpgq.Value
+  properties : Array[(String, Array[@moonpgq.Value])]
+}
+
+pub struct Store {
+  graph : @moongraph.Graph[Int32, Int32]
+  uid : UInt64
+  vertices : Array[VertexRecord?]
+  edges : Array[EdgeRecord?]
+  vertex_slots : Map[String, Int32]
+  edge_slots : Map[String, Int32]
+  mut slot_to_dense : Array[Int32?]
+  mut next_vertex_id : Int64
+  mut next_edge_id : Int64
+  multi_valued : Bool
+}
+pub fn Store::add(Self, @moonpgq.Value, String, Array[(String, @moonpgq.Value)]) -> @moonpgq.Vertex
+pub fn Store::add_edge(Self, @moonpgq.Value, String, @moonpgq.Value, @moonpgq.Value?) -> @moonpgq.Edge
+pub fn Store::add_property(Self, @moonpgq.Element, String, @moonpgq.Value) -> Unit
+pub fn Store::add_vertex(Self, String, @moonpgq.Value?) -> @moonpgq.Vertex
+pub fn Store::append_property(Self, @moonpgq.Element, String, @moonpgq.Value) -> Unit
+pub fn Store::clear(Self) -> Unit
+pub fn Store::connect(Self, @moonpgq.Value, String, @moonpgq.Value, @moonpgq.Value, Array[(String, @moonpgq.Value)]) -> @moonpgq.Edge
+pub fn Store::directed(Self) -> Bool
+pub fn Store::drop_edge(Self, @moonpgq.Value) -> Unit
+pub fn Store::drop_vertex(Self, @moonpgq.Value) -> Unit
+pub fn Store::edge(Self, @moonpgq.Value) -> @moonpgq.Edge?
+pub fn Store::edge_count(Self) -> Int32
+pub fn Store::edge_properties(Self, @moonpgq.Value) -> Array[(String, Array[@moonpgq.Value])]
+pub fn Store::edges(Self) -> Iter[@moonpgq.Edge]
+pub fn Store::in_edges(Self, @moonpgq.Value, Array[String]) -> Iter[@moonpgq.Edge]
+pub fn Store::new() -> Self
+pub fn Store::open(directed? : Bool, multi_valued? : Bool) -> Self
+pub fn Store::out_edges(Self, @moonpgq.Value, Array[String]) -> Iter[@moonpgq.Edge]
+pub fn Store::put_property(Self, @moonpgq.Element, String, @moonpgq.Value) -> Unit
+pub fn Store::uid(Self) -> UInt64
+pub fn Store::vertex(Self, @moonpgq.Value) -> @moonpgq.Vertex?
+pub fn Store::vertex_count(Self) -> Int32
+pub fn Store::vertex_properties(Self, @moonpgq.Value) -> Array[(String, Array[@moonpgq.Value])]
+pub fn Store::vertices(Self) -> Iter[@moonpgq.Vertex]
+pub fn Store::vertices_with_label(Self, String) -> Iter[@moonpgq.Vertex]
+pub fn Store::vertices_with_property(Self, String, @moonpgq.Value) -> Iter[@moonpgq.Vertex]
+pub impl @moonpgq.Graph for Store
+
+pub(all) struct VertexRecord {
+  id : @moonpgq.Value
+  label : String
+  properties : Array[(String, Array[@moonpgq.Value])]
+}
+
+// Type aliases
+
+// Traits

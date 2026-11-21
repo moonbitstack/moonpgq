@@ -1,0 +1,8 @@
+// Replays the conformance suites of Gremlin and openCypher against the
+// in-memory store. Nothing here ships: the package carries only tests.
+
+import {
+  "moonbitstack/moonpgq" @pgq,
+  "moonbitstack/moonpgq/gremlin",
+  "moonbitstack/moonpgq/memory",
+} for "test"

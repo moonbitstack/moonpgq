@@ -1,2 +1,9 @@
-// What this package implements, and a first-hand link to the specification it
-// implements. A package without that link is not finished.
+// Property-graph values, the store contract, and the Gremlin step machine.
+//
+// The traversal model follows Apache TinkerPop's Gremlin:
+// https://tinkerpop.apache.org/docs/current/reference/
+// The store contract is this module's own; see `graph.mbt`.
+
+import {
+  "moonbitlang/core/double",
+}

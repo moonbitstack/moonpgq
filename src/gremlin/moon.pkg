@@ -1,0 +1,8 @@
+// A parser for the text form of Gremlin.
+//
+// The grammar is the traversal half of the Gremlin language:
+// https://tinkerpop.apache.org/docs/current/reference/#graph-traversal-steps
+
+import {
+  "moonbitstack/moonpgq" @pgq,
+}

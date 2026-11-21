@@ -1,13 +1,402 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbitstack/CHANGE-ME"
+package "moonbitstack/moonpgq"
 
 // Values
-pub fn greet(StringView) -> String
+pub fn compare_text(String, String) -> Int32
+
+pub fn element_of(Value) -> Element?
+
+pub fn find_property(Array[(String, Array[Value])], String) -> Array[Value]?
+
+pub fn format_double(Double) -> String
+
+pub fn id_of(Value) -> Value?
+
+pub fn run(&Graph, Traversal) -> Outcome raise Refused
+
+pub fn values_of(&Graph, Traversal) -> Array[Value] raise Refused
+
+pub fn vertices_of(&Graph, String?) -> Iter[Vertex]
 
 // Errors
+pub(all) suberror Refused {
+  Malformed(Int32, String, String)
+  Unsupported(String, String)
+  Mismatch(String, String, String)
+  NotWritable(String)
+}
+pub fn Refused::to_text(Self) -> String
+pub impl Show for Refused
 
 // Types and methods
+pub(all) struct By {
+  key : String?
+  traversal : Traversal?
+  token : Token?
+  column : Column?
+}
+pub fn By::identity() -> Self
+pub fn By::of_column(Column) -> Self
+pub fn By::of_key(String) -> Self
+pub fn By::of_token(Token) -> Self
+pub fn By::of_traversal(Traversal) -> Self
+
+#derive(Eq)
+pub(all) enum Cardinality {
+  Single
+  List
+  Set
+}
+
+pub(all) struct Choose {
+  predicate : Predicate?
+  choice : Traversal?
+  on : By?
+  then : Traversal?
+  otherwise : Traversal?
+  options : Array[(Value, Traversal)]
+}
+pub fn Choose::of_predicate(Predicate) -> Self
+pub fn Choose::of_traversal(Traversal) -> Self
+pub fn Choose::of_value(By) -> Self
+
+#derive(Eq)
+pub(all) enum Column {
+  Keys
+  Values
+}
+
+pub(all) struct Comparator {
+  by : By
+  order : Order
+}
+pub fn Comparator::of(By) -> Self
+
+pub struct Ctx {
+  graph : &Graph
+  effects : Array[(String, Array[Value])]
+}
+
+#derive(Eq)
+pub(all) enum Direction {
+  Out
+  In
+  Both
+}
+
+pub struct Edge {
+  graph : &Graph
+  id : Value
+  label : String
+  out_v : Value
+  in_v : Value
+}
+pub fn Edge::equals(Self, Self) -> Bool
+pub fn Edge::graph(Self) -> &Graph
+pub fn Edge::id(Self) -> Value
+pub fn Edge::in_id(Self) -> Value
+pub fn Edge::in_vertex(Self) -> Vertex?
+pub fn Edge::key(Self) -> String
+pub fn Edge::label(Self) -> String
+pub fn Edge::new(&Graph, Value, String, Value, Value) -> Self
+pub fn Edge::out_id(Self) -> Value
+pub fn Edge::out_vertex(Self) -> Vertex?
+pub fn Edge::properties(Self) -> Array[(String, Array[Value])]
+pub fn Edge::property(Self, String) -> Value?
+pub fn Edge::to_text(Self) -> String
+pub fn Edge::values(Self, String) -> Array[Value]
+pub impl Show for Edge
+
+pub(all) enum Element {
+  Vertex(Vertex)
+  Edge(Edge)
+}
+pub fn Element::id(Self) -> Value
+pub fn Element::key(Self) -> String
+pub fn Element::label(Self) -> String
+pub fn Element::properties(Self) -> Array[(String, Array[Value])]
+pub fn Element::property(Self, String) -> Value?
+pub fn Element::to_text(Self) -> String
+pub fn Element::to_value(Self) -> Value
+
+pub(all) struct Has {
+  key : String
+  predicate : Predicate
+}
+
+#derive(Eq)
+pub(all) enum Order {
+  Asc
+  Desc
+  Shuffle
+}
+
+pub(all) struct Outcome {
+  values : Array[Value]
+  side_effects : Array[(String, Value)]
+}
+
+pub struct Path {
+  objects : Array[Value]
+}
+pub fn Path::at(Self, Int32) -> Value?
+pub fn Path::new(Array[Value]) -> Self
+pub fn Path::objects(Self) -> Array[Value]
+pub fn Path::size(Self) -> Int32
+pub fn Path::to_text(Self) -> String
+pub impl Show for Path
+
+#derive(Eq)
+pub(all) enum Pop {
+  First
+  Last
+  All
+  Mixed
+}
+
+pub(all) enum Predicate {
+  Equal(Value)
+  NotEqual(Value)
+  Less(Value)
+  LessEqual(Value)
+  Greater(Value)
+  GreaterEqual(Value)
+  Between(Value, Value)
+  Inside(Value, Value)
+  Outside(Value, Value)
+  Within(Array[Value])
+  Without(Array[Value])
+  StartingWith(String)
+  EndingWith(String)
+  Containing(String)
+  NotStartingWith(String)
+  NotEndingWith(String)
+  NotContaining(String)
+  And(Predicate, Predicate)
+  Or(Predicate, Predicate)
+  Not(Predicate)
+}
+pub fn Predicate::accepts(Self, Value) -> Bool
+
+pub struct Property {
+  key : String
+  value : Value
+}
+pub fn Property::key(Self) -> String
+pub fn Property::new(String, Value) -> Self
+pub fn Property::to_text(Self) -> String
+pub fn Property::value(Self) -> Value
+pub impl Show for Property
+
+pub(all) struct Repeat {
+  body : Traversal
+  until : Traversal?
+  until_first : Bool
+  emit : Traversal?
+  emit_first : Bool
+  times : Int64?
+}
+pub fn Repeat::of(Traversal) -> Self
+
+#derive(Eq)
+pub(all) enum Scope {
+  Global
+  Local
+}
+
+pub(all) enum SelectKey {
+  Name(String)
+  Column(Column)
+}
+pub fn SelectKey::to_text(Self) -> String
+
+pub(all) struct Standard {
+}
+pub impl Executor for Standard
+
+pub(all) enum Step {
+  Vertices(Array[Value])
+  Edges(Array[Value])
+  AddVertex(String, Array[(String, Value)])
+  AddEdge(String, Array[(String, Value)], By?, By?)
+  Out(Array[String])
+  In(Array[String])
+  Both(Array[String])
+  OutEdges(Array[String])
+  InEdges(Array[String])
+  BothEdges(Array[String])
+  OutVertex
+  InVertex
+  BothVertices
+  OtherVertex
+  HasLabel(Array[String])
+  HasId(Array[Value])
+  HasKey(Array[String])
+  HasValue(Array[Value])
+  Has(Has)
+  HasNot(Array[String])
+  Values(Array[String])
+  ValueMap(Array[String], Array[By], Bool)
+  ElementMap(Array[String], Array[By])
+  PropertyMap(Array[String], Array[By])
+  Properties(Array[String], Array[By])
+  ElementKey
+  ElementValue
+  ElementLabel
+  ElementId
+  Count(Scope)
+  Sum(Scope, Array[By])
+  Mean(Scope, Array[By])
+  Max(Scope, Array[By])
+  Min(Scope, Array[By])
+  Fold(Scope)
+  Unfold
+  Limit(Int64, Scope)
+  Skip(Int64, Scope)
+  Range(Int64, Int64, Scope)
+  Tail(Int64, Scope)
+  Dedup(Array[String], Array[By], Scope)
+  Order(Scope, Array[Comparator])
+  Group(String?, Array[Comparator])
+  GroupCount(String?, By?)
+  Cap(Array[String])
+  PathStep(Array[By], By?, By?)
+  SimplePath
+  CyclicPath
+  Select(Array[SelectKey], Array[By], Pop)
+  WhereStep(WhereKind)
+  FilterStep(Traversal)
+  NotStep(Traversal)
+  AndStep(Array[Traversal])
+  OrStep(Array[Traversal])
+  Is(Predicate)
+  Constant(Value)
+  MapStep(Traversal, Scope)
+  FlatMapStep(Traversal)
+  LocalStep(Traversal)
+  RepeatStep(Repeat)
+  Coalesce(Array[Traversal])
+  OptionalStep(Traversal)
+  Union(Array[Traversal])
+  ChooseStep(Choose)
+  Inject(Array[Value])
+  Aggregate(String, Scope, By?)
+  Store(String, Scope, By?)
+  SideEffect(Traversal)
+  Project(Array[String], Array[By])
+  Sample(Int64, Scope)
+  Loops
+  Drop
+  PropertyStep(String, Value, Cardinality)
+  As(String)
+  Identity
+}
+pub fn Step::to_text(Self) -> String
+
+#derive(Eq)
+pub(all) enum Token {
+  Id
+  Label
+  Key
+  Value
+}
+
+pub(all) struct Traversal {
+  steps : Array[Step]
+}
+pub fn Traversal::is_empty(Self) -> Bool
+pub fn Traversal::new() -> Self
+pub fn Traversal::of(Array[Step]) -> Self
+pub fn Traversal::size(Self) -> Int32
+pub fn Traversal::then(Self, Step) -> Self
+pub fn Traversal::to_text(Self) -> String
+
+pub(all) struct Traverser {
+  value : Value
+  path : Array[Value]
+  labels : Array[(String, Int32, Value)]
+  loops : Int32
+}
+pub fn Traverser::value(Self) -> Value
+
+pub(all) enum Value {
+  Nil
+  Bool(Bool)
+  Int(Int64)
+  Double(Double)
+  Text(String)
+  List(Array[Value])
+  Dict(Array[(Value, Value)])
+  Entry(Value, Value)
+  Vertex(Vertex)
+  Edge(Edge)
+  Path(Path)
+  Property(Property)
+}
+pub fn Value::as_double(Self) -> Double?
+pub fn Value::compare(Self, Self) -> Int32
+pub fn Value::element(Self) -> Element?
+pub fn Value::equals(Self, Self) -> Bool
+pub fn Value::is_number(Self) -> Bool
+pub fn Value::key(Self) -> String
+pub fn Value::of_int(Int64) -> Self
+pub fn Value::of_text(StringView) -> Self
+pub fn Value::rank(Self) -> Int32
+pub fn Value::to_text(Self) -> String
+pub impl Compare for Value
+pub impl Eq for Value
+pub impl Show for Value
+
+pub struct Vertex {
+  graph : &Graph
+  id : Value
+  label : String
+}
+pub fn Vertex::equals(Self, Self) -> Bool
+pub fn Vertex::graph(Self) -> &Graph
+pub fn Vertex::id(Self) -> Value
+pub fn Vertex::key(Self) -> String
+pub fn Vertex::label(Self) -> String
+pub fn Vertex::new(&Graph, Value, String) -> Self
+pub fn Vertex::properties(Self) -> Array[(String, Array[Value])]
+pub fn Vertex::property(Self, String) -> Value?
+pub fn Vertex::to_text(Self) -> String
+pub fn Vertex::values(Self, String) -> Array[Value]
+pub impl Show for Vertex
+
+pub(all) enum WhereKind {
+  Traversal(Traversal)
+  Predicate(Predicate)
+  Label(String, Predicate)
+}
 
 // Type aliases
 
 // Traits
+pub(open) trait Executor {
+  fn execute(Self, &Graph, Traversal) -> Outcome raise Refused
+}
+
+pub(open) trait Graph {
+  fn uid(Self) -> UInt64
+  fn directed(Self) -> Bool
+  fn vertex_count(Self) -> Int32
+  fn edge_count(Self) -> Int32
+  fn vertex(Self, Value) -> Vertex?
+  fn edge(Self, Value) -> Edge?
+  fn vertices(Self) -> Iter[Vertex]
+  fn edges(Self) -> Iter[Edge]
+  fn vertices_with_label(Self, String) -> Iter[Vertex]
+  fn vertices_with_property(Self, String, Value) -> Iter[Vertex]
+  fn out_edges(Self, Value, Array[String]) -> Iter[Edge]
+  fn in_edges(Self, Value, Array[String]) -> Iter[Edge]
+  fn vertex_properties(Self, Value) -> Array[(String, Array[Value])]
+  fn edge_properties(Self, Value) -> Array[(String, Array[Value])]
+  fn add_vertex(Self, String, Value?) -> Vertex
+  fn add_edge(Self, Value, String, Value, Value?) -> Edge
+  fn put_property(Self, Element, String, Value) -> Unit
+  fn append_property(Self, Element, String, Value) -> Unit
+  fn drop_vertex(Self, Value) -> Unit
+  fn drop_edge(Self, Value) -> Unit
+  fn clear(Self) -> Unit
+}

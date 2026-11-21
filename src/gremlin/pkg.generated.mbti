@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonpgq/gremlin"
+
+import {
+  "moonbitstack/moonpgq",
+}
+
+// Values
+pub fn parse(StringView, bindings? : Array[(String, @moonpgq.Value)]) -> @moonpgq.Traversal raise @moonpgq.Refused
+
+pub fn plan(StringView, bindings? : Array[(String, @moonpgq.Value)]) -> @moonpgq.Traversal raise @moonpgq.Refused
+
+pub fn run(&@moonpgq.Graph, StringView, bindings? : Array[(String, @moonpgq.Value)]) -> Array[@moonpgq.Value] raise @moonpgq.Refused
+
+// Errors
+
+// Types and methods
+pub(all) enum Arg {
+  Value(@moonpgq.Value)
+  Trav(@moonpgq.Traversal)
+  Pred(@moonpgq.Predicate)
+  Order(@moonpgq.Order)
+  Scope(@moonpgq.Scope)
+  Column(@moonpgq.Column)
+  Token(@moonpgq.Token)
+  Pop(@moonpgq.Pop)
+  Cardinality(@moonpgq.Cardinality)
+}
+
+pub struct Parser {
+  text : String
+  mut at : Int32
+  bindings : Array[(String, @moonpgq.Value)]
+}
+
+// Type aliases
+
+// Traits

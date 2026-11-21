@@ -1,0 +1,7 @@
+// An in-memory property graph: labels, properties and multi-valued keys on top
+// of a `moongraph` graph.
+
+import {
+  "moonbitstack/moonpgq" @pgq,
+  "moonbitstack/moongraph",
+}
