@@ -67,12 +67,16 @@ jobs:
           moon info --target all && git diff --exit-code
 
       # The case data is generated from the vendored feature files; a suite that
-      # was re-vendored without regenerating would replay stale cases.
+      # was re-vendored without regenerating would replay stale cases. The
+      # generator writes one case per line, so formatting runs before the
+      # comparison the repository is kept in.
       - name: the conformance cases are up to date
         if: runner.os == 'Linux'
         run: |
-          python3 scripts/gen_gremlin_cases.py --check
-          python3 scripts/gen_cypher_cases.py --check
+          python3 scripts/gen_gremlin_cases.py
+          python3 scripts/gen_cypher_cases.py
+          moon fmt
+          git diff --exit-code
 
       - name: the skills are valid
         if: runner.os == 'Linux'
